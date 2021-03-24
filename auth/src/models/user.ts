@@ -1,4 +1,4 @@
-import { model, Model, Schema } from 'mongoose';
+import { Document, model, Model, Schema } from 'mongoose';
 
 // an Interface that describes the properties that are required to create a new user
 interface UserAttrs {
@@ -6,9 +6,15 @@ interface UserAttrs {
     password: string
 }
 
+// an Interface that describes the properties that a User Document has
+interface UserDoc extends Document {
+    email: string,
+    password: string
+}
+
 // an Interface that describes the properties that a User Model has
-interface UserModel extends Model<any> {
-    build(attrs: UserAttrs): any;
+interface UserModel extends Model<UserDoc> {
+    build(attrs: UserAttrs): UserDoc;
 }
 
 const userSchema = new Schema({
@@ -26,7 +32,7 @@ userSchema.statics.build = (attrs: UserAttrs) => {
     return new User(attrs);
 }
 
-const User = model<any, UserModel>("User", userSchema);
+const User = model<UserDoc, UserModel>("User", userSchema);
 
 export {
     User,
