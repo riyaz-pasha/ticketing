@@ -27,6 +27,15 @@ it('should disallow duplicate signups', async () => {
     }).expect(400)
 });
 
+it('should set cookie on successful signup', async () => {
+    const response = await signupRequest({
+        email: "same@mail.com",
+        password: "password",
+    }).expect(201)
+    
+    expect(response.get("Set-Cookie")).toBeDefined();
+});
+
 it('should return a 400 when in valid email is passed', async () => {
     return signupRequest({
         email: "test",
