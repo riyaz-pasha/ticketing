@@ -15,6 +15,18 @@ it('should return a 201 response on succcessful signup', async () => {
         .expect(201)
 });
 
+it('should disallow duplicate signups', async () => {
+    await signupRequest({
+        email: "same@mail.com",
+        password: "password",
+    }).expect(201)
+
+    await signupRequest({
+        email: "same@mail.com",
+        password: "password",
+    }).expect(400)
+});
+
 it('should return a 400 when in valid email is passed', async () => {
     return signupRequest({
         email: "test",
