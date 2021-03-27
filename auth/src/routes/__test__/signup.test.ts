@@ -1,7 +1,7 @@
 import request from "supertest";
 import { app } from "../../app";
 
-const signupRequest = (reqBody) => request(app)
+const signupRequest = (reqBody: any) => request(app)
     .post("/api/users/signup")
     .send(reqBody)
 
@@ -32,7 +32,7 @@ it('should set cookie on successful signup', async () => {
         email: "same@mail.com",
         password: "password",
     }).expect(201)
-    
+
     expect(response.get("Set-Cookie")).toBeDefined();
 });
 
