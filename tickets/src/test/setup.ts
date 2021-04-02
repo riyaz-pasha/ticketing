@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import { getId } from './utils';
 
 declare global {
     namespace NodeJS {
@@ -39,7 +40,7 @@ afterAll(async () => {
 
 global.signin = () => {
     const payload = {
-        id: "abcd1234",
+        id: getId(),
         email: "test@mail.com",
     }
     const token = jwt.sign(payload, process.env.JWT_KEY!);
