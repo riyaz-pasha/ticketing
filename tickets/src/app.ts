@@ -1,4 +1,4 @@
-import { errorHandler, NotFoundError } from "@riyazpasha/ticketing-common";
+import { currentUser, errorHandler, NotFoundError } from "@riyazpasha/ticketing-common";
 import { json } from "body-parser";
 import cookieSession from "cookie-session";
 import express from "express";
@@ -12,6 +12,8 @@ app.use(cookieSession({
     signed: false,
     secure: process.env.NODE_ENV !== "test",
 }));
+
+app.use(currentUser);
 
 app.use(createTicketRouter);
 

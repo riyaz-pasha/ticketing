@@ -10,7 +10,24 @@ it('should have a route handler listening to /api/tickets for post requests', as
 });
 
 it('can only be accessed if the user is signed in', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .send({})
 
+    expect(response.status).toEqual(401);
+    expect(response.unauthorized).toBeTruthy();
+    expect(response.text).toContain("Not authorized");
+});
+
+it('should not return not authorized error when user is logged in', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .set("Cookie", global.signin())
+        .send({})
+
+    expect(response.status).not.toEqual(401);
+    expect(response.unauthorized).not.toBeTruthy();
+    expect(response.text).not.toContain("Not authorized");
 });
 
 it('should return an error if invalid title is provided', async () => {
