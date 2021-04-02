@@ -30,8 +30,29 @@ it('should not return not authorized error when user is logged in', async () => 
     expect(response.text).not.toContain("Not authorized");
 });
 
-it('should return an error if invalid title is provided', async () => {
+it('should return an error if empty title is provided', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .set("Cookie", global.signin())
+        .send({
+            title: "",
+            price: 10,
+        })
 
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain("Title is required");
+});
+
+it('should return an error if no title is provided', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .set("Cookie", global.signin())
+        .send({
+            price: 10,
+        })
+
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain("Title is required");
 });
 
 it('should return an error if invalid price is provided', async () => {
