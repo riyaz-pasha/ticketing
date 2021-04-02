@@ -55,8 +55,29 @@ it('should return an error if no title is provided', async () => {
     expect(response.text).toContain("Title is required");
 });
 
-it('should return an error if invalid price is provided', async () => {
+it('should return an error if 0 is provided as price', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .set("Cookie", global.signin())
+        .send({
+            title: "title",
+            price: 0,
+        })
 
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain("Price must be greater than 0");
+});
+
+it('should return an error if proce is not provided', async () => {
+    const response = await request(app)
+        .post("/api/tickets")
+        .set("Cookie", global.signin())
+        .send({
+            title: "title",
+        })
+
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain("Price must be greater than 0");
 });
 
 it('should create a new ticket when valid inputs are passed', async () => {
