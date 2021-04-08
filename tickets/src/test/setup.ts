@@ -3,6 +3,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { getId } from './utils';
 
+jest.mock("../nats-wrapper");
+
 declare global {
     namespace NodeJS {
         interface Global {
