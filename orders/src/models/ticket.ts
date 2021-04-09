@@ -41,7 +41,7 @@ ticketSchema.statics.build = (attrs: TicketAttrs) => {
 
 ticketSchema.methods.isReserved = async function () {
     const existingOrder = await Order.findOne({
-        //@ts-ignore
+        //@ts-ignorew
         ticket: this,
         status: {
             $in: [
