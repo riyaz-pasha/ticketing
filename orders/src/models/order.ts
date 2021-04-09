@@ -56,4 +56,5 @@ const Order = model<OrderDoc, OrderModel>("Order", orderSchema);
 
 export {
     Order,
+    OrderStatus,
 };
