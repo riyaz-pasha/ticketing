@@ -1,7 +1,9 @@
+import { Subjects } from "@riyazpasha/ticketing-common";
 import request from "supertest";
 import { app } from "../../app";
 import { Order, OrderStatus } from "../../models/order";
 import { Ticket } from "../../models/ticket";
+import { natsWrapper } from "../../nats-wrapper";
 
 const deleteOrderById = (orderId: string, userCookie: string[]) => request(app)
     .delete(`/api/orders/${orderId}`)
@@ -41,4 +43,15 @@ it('should not cancel other user order details', async () => {
 
     expect(response.status).toEqual(401);
     expect(response.body.errors[0].message).toEqual("Not authorized");
+});
+
+it('should order cancelled event', async () => {
+    const ticket1 = await buildTicket();
+    const user1 = global.signin();
+    const { body: user1Order1 } = await makeOrder(ticket1.id, user1);
+
+    const response = await deleteOrderById(user1Order1.id, user1);
+
+    expect(response.status).toEqual(204);
+    expect(natsWrapper.client.publish.mock.calls[1][0]).toStrictEqual(Subjects.OrderCancelled);
 });

@@ -2,6 +2,7 @@ import request from 'supertest';
 import { app } from '../../app';
 import { Order, OrderStatus } from '../../models/order';
 import { Ticket } from '../../models/ticket';
+import { natsWrapper } from '../../nats-wrapper';
 import { getId } from "../../test/utils";
 
 const makeOrder = (ticketId: string, userCookie?: string[]) => request(app)
@@ -43,3 +44,12 @@ it('should reserves a ticket', async () => {
     expect(response.body).toHaveProperty("ticket");
 });
 
+it('should emit an order created event', async () => {
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, });
+    await ticket.save();
+
+    const response = await makeOrder(ticket.id);
+
+    expect(response.status).toEqual(201);
+    expect(natsWrapper.client.publish).toHaveBeenCalledTimes(1);
+});

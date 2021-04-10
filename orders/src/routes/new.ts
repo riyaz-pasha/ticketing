@@ -1,8 +1,10 @@
 import { BadRequestError, NotFoundError, requireAuth, validateRequest } from "@riyazpasha/ticketing-common";
 import { Request, Response, Router } from "express";
 import { body } from "express-validator";
+import { OrderCreatedPublisher } from "../events/publishers/order-created-publisher";
 import { Order, OrderStatus } from "../models/order";
 import { Ticket } from "../models/ticket";
+import { natsWrapper } from "../nats-wrapper";
 import { isValidTicketId } from "../utils/validation";
 
 const EXPIRATION_WINDOW_SECONDS = 15 * 50;
@@ -38,6 +40,17 @@ router.post(
             ticket: ticket,
         });
         await order.save();
+
+        new OrderCreatedPublisher(natsWrapper.client).publish({
+            id: order.id,
+            status: order.status,
+            userId: order.userId,
+            expiresAt: order.expiresAt.toISOString(),
+            ticket: {
+                id: ticket.id,
+                price: ticket.price,
+            },
+        })
 
         res.status(201).send(order);
     }
