@@ -12,6 +12,7 @@ interface TicketDoc extends Document {
     price: number
     userId: string
     version: number
+    orderId?: string
 }
 
 interface TicketModel extends Model<TicketDoc> {
@@ -27,10 +28,12 @@ const ticketSchema = new Schema({
         type: Number,
         required: true,
     },
-
     userId: {
         type: String,
         required: true,
+    },
+    orderId: {
+        type: String,
     }
 }, {
     toJSON: {
