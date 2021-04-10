@@ -1,5 +1,5 @@
 import { Message } from 'node-nats-streaming';
-import { OrderCreatedEvent, OrderStatus } from '@riyazpasha/ticketing-common';
+import { OrderCreatedEvent, OrderStatus, Subjects } from '@riyazpasha/ticketing-common';
 import { Ticket } from "../../../models/ticket";
 import { natsWrapper } from "../../../nats-wrapper";
 import { getId } from "../../../test/utils";
@@ -51,4 +51,25 @@ it('acks the message', async () => {
     await listener.onMessage(data, msg);
 
     expect(msg.ack).toHaveBeenCalledTimes(1);
+});
+
+it('should publish ticket updated event', async () => {
+    const { listener, ticket, data, msg } = await setup();
+
+    await listener.onMessage(data, msg);
+
+    const updatedTicket = await Ticket.findById(ticket.id);
+
+    expect(natsWrapper.client.publish).toHaveBeenCalledWith(
+        Subjects.TicketUpdated,
+        JSON.stringify({
+            id: updatedTicket!.id,
+            version: updatedTicket!.version,
+            title: updatedTicket!.title,
+            price: updatedTicket!.price,
+            userId: updatedTicket!.userId,
+            orderId: updatedTicket!.orderId,
+        }),
+        expect.anything()
+    )
 });
