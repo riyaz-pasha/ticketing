@@ -61,8 +61,7 @@ it('should not call if the event has a skipped version', async () => {
 
     try {
         await listener.onMessage(futureEventData, msg);
-    } catch (error) {
-    }
+    } catch (error) { }
 
     expect(msg.ack).not.toHaveBeenCalled();
     expect(msg.ack).toHaveBeenCalledTimes(0);
