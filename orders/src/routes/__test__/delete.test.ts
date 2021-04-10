@@ -4,6 +4,7 @@ import { app } from "../../app";
 import { Order, OrderStatus } from "../../models/order";
 import { Ticket } from "../../models/ticket";
 import { natsWrapper } from "../../nats-wrapper";
+import { getId } from "../../test/utils";
 
 const deleteOrderById = (orderId: string, userCookie: string[]) => request(app)
     .delete(`/api/orders/${orderId}`)
@@ -16,7 +17,7 @@ const makeOrder = (ticketId: string, userCookie?: string[]) => request(app)
     .send({ ticketId });
 
 const buildTicket = async () => {
-    const ticket = Ticket.build({ title: "Movie Name", price: 100 });
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, id: getId() });
     await ticket.save();
     return ticket;
 }
@@ -53,5 +54,6 @@ it('should order cancelled event', async () => {
     const response = await deleteOrderById(user1Order1.id, user1);
 
     expect(response.status).toEqual(204);
+    // @ts-ignore
     expect(natsWrapper.client.publish.mock.calls[1][0]).toStrictEqual(Subjects.OrderCancelled);
 });

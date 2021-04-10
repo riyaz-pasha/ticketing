@@ -1,6 +1,7 @@
 import request from "supertest";
 import { app } from "../../app";
 import { Ticket } from "../../models/ticket";
+import { getId } from "../../test/utils";
 
 const getOrderById = (orderId: string, userCookie: string[]) => request(app)
     .get(`/api/orders/${orderId}`)
@@ -12,7 +13,7 @@ const makeOrder = (ticketId: string, userCookie?: string[]) => request(app)
     .send({ ticketId });
 
 const buildTicket = async () => {
-    const ticket = Ticket.build({ title: "Movie Name", price: 100 });
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, id: getId(), });
     await ticket.save();
     return ticket;
 }
@@ -39,3 +40,4 @@ it('should not fetch other user order details', async () => {
     expect(response.status).toEqual(401);
     expect(response.body.errors[0].message).toEqual("Not authorized");
 });
+

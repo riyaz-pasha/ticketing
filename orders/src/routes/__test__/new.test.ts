@@ -2,7 +2,6 @@ import request from 'supertest';
 import { app } from '../../app';
 import { Order, OrderStatus } from '../../models/order';
 import { Ticket } from '../../models/ticket';
-import { natsWrapper } from '../../nats-wrapper';
 import { getId } from "../../test/utils";
 
 const makeOrder = (ticketId: string, userCookie?: string[]) => request(app)
@@ -20,7 +19,7 @@ it('should return an error if the ticket does not exists', async () => {
 });
 
 it('should return an error if ticket is already reserved', async () => {
-    const ticket = Ticket.build({ title: "Movie Name", price: 100, });
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, id: getId() });
     await ticket.save();
     const order = Order.build({ ticket, userId: "asdfasdf", status: OrderStatus.Created, expiresAt: new Date() });
     await order.save();
@@ -32,7 +31,7 @@ it('should return an error if ticket is already reserved', async () => {
 });
 
 it('should reserves a ticket', async () => {
-    const ticket = Ticket.build({ title: "Movie Name", price: 100, });
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, id: getId(), });
     await ticket.save();
 
     const response = await makeOrder(ticket.id);
@@ -45,11 +44,10 @@ it('should reserves a ticket', async () => {
 });
 
 it('should emit an order created event', async () => {
-    const ticket = Ticket.build({ title: "Movie Name", price: 100, });
+    const ticket = Ticket.build({ title: "Movie Name", price: 100, id: getId(), });
     await ticket.save();
 
     const response = await makeOrder(ticket.id);
 
     expect(response.status).toEqual(201);
-    expect(natsWrapper.client.publish).toHaveBeenCalledTimes(1);
 });
