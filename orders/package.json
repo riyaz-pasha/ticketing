@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@riyazpasha/ticketing-common": "^1.1.5",
+    "@riyazpasha/ticketing-common": "^1.1.6",
     "@types/body-parser": "^1.19.0",
     "@types/cookie-session": "^2.0.42",
     "@types/express": "^4.17.11",
