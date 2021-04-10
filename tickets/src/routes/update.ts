@@ -1,4 +1,4 @@
-import { NotAuthorizedError, NotFoundError, requireAuth, validateRequest } from "@riyazpasha/ticketing-common";
+import { BadRequestError, NotAuthorizedError, NotFoundError, requireAuth, validateRequest } from "@riyazpasha/ticketing-common";
 import { Request, Response, Router } from "express";
 import { body } from "express-validator";
 import { TicketUpdatedPublisher } from "../event/pubishers/ticket-updated-publisher";
@@ -23,6 +23,7 @@ router.put(
     async (req: Request, res: Response) => {
         const ticket = await Ticket.findById(req.params.id);
         if (!ticket) throw new NotFoundError();
+        if (ticket.orderId) throw new BadRequestError("Cannot edit a reserved Ticket");
         if (ticket.userId !== req.currentUser!.id) throw new NotAuthorizedError();
         ticket.set({
             title: req.body.title,

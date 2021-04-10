@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { app } from '../../app';
+import { Ticket } from '../../models/ticket';
 import { getId } from '../../test/utils';
 
 type TicketAttrs = {
@@ -117,4 +118,18 @@ it('should update the ticket when valid details is provided', async () => {
     expect(response.body.title).toEqual(title);
     expect(response.body.price).toEqual(price);
 
+});
+
+it('should not allow the user to edit the ticket which is reserved', async () => {
+    const updatedTicketDetails = { title: "new-title", price: 1 };
+    const createTicketResponse = await creatTicket(ticketDetails, user1cookie).expect(201);
+    const ticket = await Ticket.findById(createTicketResponse.body.id);
+    const orderId = getId();
+    ticket?.set({ orderId });
+    await ticket?.save();
+
+    const response = await updateTicket(createTicketResponse.body.id, updatedTicketDetails, user1cookie)
+
+    expect(response.status).toStrictEqual(400);
+    expect(response.body.errors[0].message).toStrictEqual("Cannot edit a reserved Ticket");
 });
