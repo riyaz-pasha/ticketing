@@ -1,8 +1,10 @@
 import { BadRequestError, NotAuthorizedError, NotFoundError, OrderStatus, requireAuth, validateRequest } from '@riyazpasha/ticketing-common';
 import { Request, Response, Router } from "express";
 import { body } from 'express-validator';
+import { PaymentCreatedPublisher } from '../events/publisher/payment-created-publisher';
 import { Order } from '../models/order';
 import { Payment } from '../models/payment';
+import { natsWrapper } from '../nats-wrapper';
 import { stripe } from '../stripe';
 
 const router = Router();
@@ -35,6 +37,12 @@ router.post(
             orderId,
         })
         await payment.save();
+
+        await new PaymentCreatedPublisher(natsWrapper.client).publish({
+            id: payment.id,
+            stripeId: payment.stripeId,
+            orderId: payment.orderId,
+        });
 
         res.status(201).send({ success: true })
     }
