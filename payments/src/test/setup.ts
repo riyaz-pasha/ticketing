@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { getId } from './utils';
 
 jest.mock("../nats-wrapper");
+jest.mock("../stripe");
 
 declare global {
     namespace NodeJS {
@@ -17,6 +18,7 @@ let mongo: any;
 
 beforeAll(async () => {
     process.env.JWT_KEY = "jwt secret key";
+    process.env.STRIPE_KEY = "jwt secret key";
 
     mongo = new MongoMemoryServer();
     const mongoUri = await mongo.getUri();

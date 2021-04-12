@@ -2,6 +2,7 @@ import { OrderStatus } from '@riyazpasha/ticketing-common';
 import request from 'supertest';
 import { app } from '../../app';
 import { Order } from '../../models/order';
+import { stripe } from '../../stripe';
 import { getId } from '../../test/utils';
 
 const purchace = (data: any, cookie: string[]) => request(app)
@@ -60,4 +61,30 @@ it('should return a 400 when purchacing a cancelled order', async () => {
 
     expect(response.status).toBe(400);
     expect(response.body.errors[0].message).toEqual("Can not pay for cancelled order");
+});
+
+it('should make payment when valid input is supplied', async () => {
+    const userId = getId();
+    const order = Order.build({
+        id: getId(),
+        version: 0,
+        userId: userId,
+        status: OrderStatus.Created,
+        price: 100,
+    });
+    await order.save();
+    const placeOrder = {
+        token: "tok_visa",
+        orderId: order.id,
+    }
+
+    const response = await purchace(placeOrder, global.signin(userId));
+
+    expect(stripe.charges.create).toHaveBeenCalledTimes(1);
+    expect(stripe.charges.create).toHaveBeenCalledWith({
+        currency: "usd",
+        amount: order.price * 100,
+        source: placeOrder.token,
+    });
+    expect(response.status).toBe(201);
 });
