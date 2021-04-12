@@ -2,6 +2,7 @@ import { OrderStatus } from '@riyazpasha/ticketing-common';
 import request from 'supertest';
 import { app } from '../../app';
 import { Order } from '../../models/order';
+import { Payment } from '../../models/payment';
 import { stripe } from '../../stripe';
 import { getId } from '../../test/utils';
 
@@ -87,4 +88,28 @@ it('should make payment when valid input is supplied', async () => {
         source: placeOrder.token,
     });
     expect(response.status).toBe(201);
+});
+
+it('should store payment details on succesful payment with stripe', async () => {
+    const userId = getId();
+    const order = Order.build({
+        id: getId(),
+        version: 0,
+        userId: userId,
+        status: OrderStatus.Created,
+        price: 100,
+    });
+    await order.save();
+    const placeOrder = {
+        token: "tok_visa",
+        orderId: order.id,
+    }
+
+    const response = await purchace(placeOrder, global.signin(userId));
+    expect(response.status).toBe(201);
+
+    const payment = await Payment.findOne({ orderId: order.id });
+    expect(payment).toBeDefined();
+    expect(payment).toHaveProperty("orderId", order.id);
+    expect(payment).toHaveProperty("stripeId");
 });
