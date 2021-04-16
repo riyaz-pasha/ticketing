@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { app } from "./app";
 
 const start = async () => {
-    console.log("test docker build process through ci") // remove after testing this
+    console.log("test docker build process through ci.") // remove after testing this
 
     if (!process.env.JWT_KEY) {
         throw new Error("JWT_KEY must be defined!..");
